@@ -9,6 +9,8 @@ Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [compat]
+Genie = "4"
+Revise = "3"
 julia = "1.6"
 
 [extras]
