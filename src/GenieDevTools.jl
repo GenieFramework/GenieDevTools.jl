@@ -6,6 +6,8 @@ using Genie.Renderers.Json, Genie.Renderers.Html
 using Revise
 using Dates
 
+import Stipple, Stipple.Pages
+
 const defaultroute = "/_devtools_"
 const logfile = "log/$(Genie.config.app_env)-$(Dates.today()).log";
 
@@ -85,6 +87,30 @@ function register_routes(defaultroute = defaultroute)
     Genie.AppServer.down!()
 
     (:status => :OK) |> json
+  end
+
+  route("$defaultroute/pages") do
+    (:pages => [Dict( :route  => Dict(:method => p.route.method, :path => p.route.path),
+                      :view   => p.view |> string,
+                      :model  => Dict(:name => p.model,
+                                      :fields => [fn for fn in fieldnames(p.model)],
+                                      :types  => [ft for ft in fieldtypes(p.model)]),
+                      :layout => p.layout |> string) for p in Stipple.Pages.pages()]) |> json
+  end
+
+  route("$defaultroute/deps") do
+    (:deps =>
+      Dict(:scripts =>
+        vcat(
+          [Base.invokelatest(d[2]) for d in Stipple.DEPS]
+        ) |> Base.Iterators.flatten |> collect
+        ,
+        :styles =>
+        filter(vcat([Base.invokelatest(d) for d in Stipple.Layout.THEMES]) |> Base.Iterators.flatten |> collect) do x
+          ! isempty(x)
+        end
+      )
+    ) |> json
   end
 
   nothing
