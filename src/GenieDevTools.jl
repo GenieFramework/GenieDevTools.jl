@@ -98,7 +98,7 @@ function register_routes(defaultroute = defaultroute)
                       :layout => p.layout |> string) for p in Stipple.Pages.pages()]) |> json
   end
 
-  route("$defaultroute/deps") do
+  route("$defaultroute/assets") do
     (:deps =>
       Dict(:scripts =>
         vcat(
