@@ -5,6 +5,7 @@ using Genie.Renderers.Json, Genie.Renderers.Html
 
 using Revise
 using Dates
+using RemoteREPL
 
 import Stipple, Stipple.Pages
 
@@ -112,6 +113,16 @@ function register_routes(defaultroute = defaultroute)
           ! isempty(x)
         end
       )
+    ) |> json
+  end
+
+  route("$defaultroute/startrepl") do
+    port = rand(10000:60000)
+    @async serve_repl(port)
+
+    Dict(
+      :status => :OK,
+      :port   => port
     ) |> json
   end
 
