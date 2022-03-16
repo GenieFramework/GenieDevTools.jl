@@ -50,7 +50,9 @@ function register_routes(defaultroute = defaultroute)
 
     (:save => open(pth, "w") do f
       write(f, params(:payload))
-    end) |> json
+    end)
+
+    (:status => :OK) |> json
   end
 
   routes("$defaultroute/exec", method = [GET, POST]) do
