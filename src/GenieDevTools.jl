@@ -102,18 +102,18 @@ function register_routes(defaultroute = defaultroute)
   end
 
   route("$defaultroute/assets") do
-    (:deps =>
-      Dict(:scripts =>
-        vcat(
-          [Base.invokelatest(d[2]) for d in Stipple.DEPS]
-        ) |> Base.Iterators.flatten |> collect
-        ,
-        :styles =>
-        filter(vcat([Base.invokelatest(d) for d in Stipple.Layout.THEMES]) |> Base.Iterators.flatten |> collect) do x
-          ! isempty(x)
-        end
-      )
-    ) |> json
+    scripts = String[]
+    styles = String[]
+
+    for r in routes()
+      if endswith(r.path, ".js")
+        push!(scripts, r.path)
+      elseif endswith(r.path, ".css")
+        push!(styles, r.path)
+      end
+    end
+
+    (:deps => Dict(:scripts => scripts, :styles => styles)) |> json
   end
 
   route("$defaultroute/startrepl") do
