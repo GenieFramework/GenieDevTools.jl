@@ -1,11 +1,22 @@
-function register_errors_route(defaultroute)
+module RouteHelpers
+
+using Genie
+using Genie.Renderers.Json, Genie.Renderers.Html
+
+using Revise
+using Dates
+using RemoteREPL
+
+import Stipple, Stipple.Pages
+
+function errors(defaultroute)
   route("$defaultroute/errors") do
     (:errors => Revise.queue_errors) |> json
   end
   nothing
 end
 
-function register_dir_route(defaultroute)
+function dir(defaultroute)
   route("$defaultroute/dir") do
     pth = params(:path, pwd())
 
@@ -21,7 +32,7 @@ function register_dir_route(defaultroute)
   nothing
 end
 
-function register_edit_route(defaultroute)
+function edit(defaultroute)
   route("$defaultroute/edit") do
     pth = params(:path, pwd())
 
@@ -36,7 +47,7 @@ function register_edit_route(defaultroute)
   nothing
 end
 
-function register_save_route(defaultroute)
+function save(defaultroute)
   route("$defaultroute/save", method=POST) do
     pth = params(:path, pwd())
 
@@ -53,21 +64,21 @@ function register_save_route(defaultroute)
   nothing
 end
 
-function register_exec_route(defaultroute)
+function exec(defaultroute)
   routes("$defaultroute/exec", method=[GET, POST]) do
     Core.eval(Main, Meta.parse(params(:cmd))) |> html
   end
   nothing
 end
 
-function register_id_route(defaultroute)
+function id(defaultroute)
   route("$defaultroute/id") do
     (:id => Main.UserApp) |> json
   end
   nothing
 end
 
-function register_log_route(defaultroute)
+function log(defaultroute)
   route("$defaultroute/log") do
     isfile(logfile) || return (:error => "no log file found") |> json
 
@@ -80,7 +91,7 @@ function register_log_route(defaultroute)
   nothing
 end
 
-function register_exit_route(defaultroute)
+function exit(defaultroute)
   route("$defaultroute/exit") do
     exit()
 
@@ -89,7 +100,7 @@ function register_exit_route(defaultroute)
   nothing
 end
 
-function register_up_route(defaultroute)
+function up(defaultroute)
   route("$defaultroute/up") do
     up()
 
@@ -98,7 +109,7 @@ function register_up_route(defaultroute)
   nothing
 end
 
-function register_down_route(defaultroute)
+function down(defaultroute)
   route("$defaultroute/down") do
     Genie.AppServer.down!()
 
@@ -107,7 +118,7 @@ function register_down_route(defaultroute)
   nothing
 end
 
-function register_pages_route(defaultroute)
+function pages(defaultroute)
   route("$defaultroute/pages") do
     (:pages => [Dict(:route => Dict(:method => p.route.method, :path => p.route.path),
       :view => p.view |> string,
@@ -119,7 +130,7 @@ function register_pages_route(defaultroute)
   nothing
 end
 
-function register_assets_route(defaultroute)
+function assets(defaultroute)
   route("$defaultroute/assets") do
     scripts = String[]
     styles = String[]
@@ -137,7 +148,7 @@ function register_assets_route(defaultroute)
   nothing
 end
 
-function register_startrepl_route(defaultroute)
+function startrepl(defaultroute)
   route("$defaultroute/startrepl") do
     port = rand(10000:60000)
     @async serve_repl(port)
@@ -149,3 +160,5 @@ function register_startrepl_route(defaultroute)
   end
   nothing
 end
+
+end # module
