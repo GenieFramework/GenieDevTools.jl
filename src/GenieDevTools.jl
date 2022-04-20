@@ -10,12 +10,22 @@ using RemoteREPL
 import Stipple, Stipple.Pages
 
 const defaultroute = "/_devtools_"
-const logfile = "log/$(Genie.config.app_env)-$(Dates.today()).log";
+const _HOOKS = Function[]
 
 include("route_helpers.jl")
 import .RouteHelpers as RH
 
-function register_routes(defaultroute = defaultroute)
+function hook!(f::Function)
+  push!(_HOOKS, f)
+end
+
+function runhooks()
+  for f in _HOOKS
+    Base.invokelatest(f)
+  end
+end
+
+function register_routes(defaultroute = defaultroute) :: Nothing
   RH.errors(defaultroute)
   RH.dir(defaultroute)
   RH.edit(defaultroute)
@@ -29,6 +39,7 @@ function register_routes(defaultroute = defaultroute)
   RH.pages(defaultroute)
   RH.assets(defaultroute)
   RH.startrepl(defaultroute)
+
   nothing
 end
 

@@ -9,6 +9,8 @@ using RemoteREPL
 
 import Stipple, Stipple.Pages
 
+const logfile = "log/$(Genie.config.app_env)-$(Dates.today()).log";
+
 function errors(defaultroute)
   route("$defaultroute/errors") do
     (:errors => Revise.queue_errors) |> json
@@ -93,7 +95,7 @@ end
 
 function exit(defaultroute)
   route("$defaultroute/exit") do
-    exit()
+    Base.exit()
 
     (:status => :OK) |> json
   end
@@ -132,10 +134,12 @@ end
 
 function assets(defaultroute)
   route("$defaultroute/assets") do
+    Stipple.deps(Stipple.channel_js_name)
+
     scripts = String[]
     styles = String[]
 
-    for r in routes()
+    for r in routes(reversed = false)
       if endswith(r.path, ".js")
         push!(scripts, r.path)
       elseif endswith(r.path, ".css")
@@ -150,7 +154,10 @@ end
 
 function startrepl(defaultroute)
   route("$defaultroute/startrepl") do
-    port = rand(10000:60000)
+    port = params(:port, )
+    port = isa(port, String) ? tryparse(Int, port) : port
+    port = isnothing(port) ? rand(50_000:60_000) : port
+
     @async serve_repl(port)
 
     Dict(
