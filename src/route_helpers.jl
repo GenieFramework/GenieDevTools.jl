@@ -15,6 +15,7 @@ function errors(defaultroute)
   route("$defaultroute/errors") do
     (:errors => Revise.queue_errors) |> json
   end
+
   nothing
 end
 
@@ -31,6 +32,7 @@ function dir(defaultroute)
 
     (:dir => result) |> json
   end
+
   nothing
 end
 
@@ -46,6 +48,7 @@ function edit(defaultroute)
 
     (:content => content) |> json
   end
+
   nothing
 end
 
@@ -63,6 +66,7 @@ function save(defaultroute)
 
     (:status => :OK) |> json
   end
+
   nothing
 end
 
@@ -70,6 +74,7 @@ function exec(defaultroute)
   routes("$defaultroute/exec", method=[GET, POST]) do
     Core.eval(Main, Meta.parse(params(:cmd))) |> html
   end
+
   nothing
 end
 
@@ -77,6 +82,7 @@ function id(defaultroute)
   route("$defaultroute/id") do
     (:id => Main.UserApp) |> json
   end
+
   nothing
 end
 
@@ -90,6 +96,7 @@ function log(defaultroute)
 
     (:content => content) |> json
   end
+
   nothing
 end
 
@@ -99,6 +106,7 @@ function exit(defaultroute)
 
     (:status => :OK) |> json
   end
+
   nothing
 end
 
@@ -108,15 +116,17 @@ function up(defaultroute)
 
     (:status => :OK) |> json
   end
+
   nothing
 end
 
 function down(defaultroute)
   route("$defaultroute/down") do
-    Genie.AppServer.down!()
+    Genie.Server.down!()
 
     (:status => :OK) |> json
   end
+
   nothing
 end
 
@@ -129,6 +139,7 @@ function pages(defaultroute)
         :types => [ft for ft in fieldtypes(p.model)]),
       :layout => p.layout |> string) for p in Stipple.Pages.pages()]) |> json
   end
+
   nothing
 end
 
@@ -149,6 +160,7 @@ function assets(defaultroute)
 
     (:deps => Dict(:scripts => scripts, :styles => styles)) |> json
   end
+
   nothing
 end
 
@@ -165,6 +177,7 @@ function startrepl(defaultroute)
       :port => port
     ) |> json
   end
+
   nothing
 end
 
