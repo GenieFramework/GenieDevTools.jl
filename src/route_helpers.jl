@@ -152,14 +152,6 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
   scripts = String[]
   styles = String[]
 
-  for r in routes(reversed = false)
-    if endswith(r.path, ".js")
-      push!(scripts, r.path)
-    elseif endswith(r.path, ".css")
-      push!(styles, r.path)
-    end
-  end
-
   channelname = params(:CHANNEL__, "")
 
   if ! isempty(channelname)
@@ -170,6 +162,14 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
       Genie.Router.route("/$channelname.js", named = routename) do
         "window.CHANNEL = '$channelname';" |> Genie.Renderers.Js.js
       end
+    end
+  end
+
+  for r in routes(reversed = false)
+    if endswith(r.path, ".js")
+      push!(scripts, r.path)
+    elseif endswith(r.path, ".css")
+      push!(styles, r.path)
     end
   end
 
