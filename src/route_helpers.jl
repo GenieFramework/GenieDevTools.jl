@@ -132,36 +132,48 @@ end
 
 function pages(defaultroute)
   route("$defaultroute/pages") do
-    (:pages => [Dict(:route => Dict(:method => p.route.method, :path => p.route.path),
+    (:pages => [Dict(
+      :route => Dict(:method => p.route.method, :path => p.route.path),
       :view => p.view |> string,
       :model => Dict(:name => p.model,
         :fields => [fn for fn in fieldnames(p.model)],
         :types => [ft for ft in fieldtypes(p.model)]),
-      :layout => p.layout |> string) for p in Stipple.Pages.pages()]) |> json
+      :layout => p.layout |> string,
+      :deps => modeldeps(p.model |> Base.invokelatest)
+    ) for p in Stipple.Pages.pages()]) |> json
   end
 
   nothing
 end
 
-function assets(defaultroute)
-  route("$defaultroute/assets") do
-    Stipple.deps(Stipple.channel_js_name)
+function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
+  Stipple.deps(m)
 
-    scripts = String[]
-    styles = String[]
+  scripts = String[]
+  styles = String[]
 
-    for r in routes(reversed = false)
-      if endswith(r.path, ".js")
-        push!(scripts, r.path)
-      elseif endswith(r.path, ".css")
-        push!(styles, r.path)
-      end
+  for r in routes(reversed = false)
+    if endswith(r.path, ".js")
+      push!(scripts, r.path)
+    elseif endswith(r.path, ".css")
+      push!(styles, r.path)
     end
-
-    (:deps => Dict(:scripts => scripts, :styles => styles)) |> json
   end
 
-  nothing
+  channelname = params(:CHANNEL__, "")
+
+  if ! isempty(channelname)
+    push!(scripts, "/$channelname.js")
+    routename = "get_$(channelname)js" |> Symbol
+
+    if ! Genie.Router.isroute(routename)
+      Genie.Router.route("/$channelname.js", named = routename) do
+        "window.CHANNEL = '$channelname';" |> Genie.Renderers.Js.js
+      end
+    end
+  end
+
+  Dict(:scripts => scripts, :styles => styles)
 end
 
 function startrepl(defaultroute)

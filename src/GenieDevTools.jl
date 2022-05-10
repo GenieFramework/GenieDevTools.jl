@@ -37,7 +37,6 @@ function register_routes(defaultroute = defaultroute) :: Nothing
   RH.up(defaultroute)
   RH.down(defaultroute)
   RH.pages(defaultroute)
-  RH.assets(defaultroute)
   RH.startrepl(defaultroute)
 
   nothing
