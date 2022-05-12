@@ -166,6 +166,8 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
   end
 
   for r in routes(reversed = false)
+    ! isempty(channelname) && endswith(r.path, "$channelname.js") && continue # don't add the channel script again
+
     if endswith(r.path, ".js")
       push!(scripts, r.path)
     elseif endswith(r.path, ".css")
