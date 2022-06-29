@@ -154,7 +154,7 @@ end
 function assets(rootdir = Genie.config.server_document_root; extensions = ["js", "css"])
   result = String[]
 
-  push!(result, Genie.Util.walk_dir(f, only_extensions = extensions)...)
+  push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions)...)
 
   result
 end
