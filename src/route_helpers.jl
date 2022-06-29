@@ -144,11 +144,19 @@ function pages(defaultroute)
         :types => [ft for ft in fieldtypes(p.model)]),
       :layout => p.layout |> string,
       :deps => modeldeps(p.model |> Base.invokelatest),
-      :assets => assets()
+      :assets => assets(),
+      :config => config()
     ) for p in Stipple.Pages.pages()]) |> json
   end
 
   nothing
+end
+
+function config()
+  Dict(
+    :app_path => pwd(),
+    :public_path => abspath(Genie.confg.server_document_root)
+  )
 end
 
 function assets(rootdir = Genie.config.server_document_root; extensions = ["js", "css"])
