@@ -155,7 +155,7 @@ end
 function config()
   Dict(
     :app_path => pwd(),
-    :public_path => abspath(Genie.confg.server_document_root)
+    :public_path => abspath(Genie.config.server_document_root)
   )
 end
 
