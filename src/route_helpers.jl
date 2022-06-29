@@ -54,15 +54,19 @@ end
 
 function save(defaultroute)
   route("$defaultroute/save", method=POST) do
-    pth = params(:path, pwd())
+    isempty(params(:path, "")) || return (:error => "The `path` parameter is missing") |> json
 
-    isfile(pth) || return (:error => "$pth is not a file") |> json
+    pth = params(:path)
+
+    isdir(dirname(pth)) || mkpath(dirname(pth))
+
+    isfile(pth) || touch(pth)
 
     isempty(params(:payload, "")) && return (:error => "empty payload") |> json
 
-    (:save => open(pth, "w") do f
+    open(pth, "w") do f
       write(f, params(:payload))
-    end)
+    end
 
     (:status => :OK) |> json
   end
@@ -139,11 +143,22 @@ function pages(defaultroute)
         :fields => [fn for fn in fieldnames(p.model)],
         :types => [ft for ft in fieldtypes(p.model)]),
       :layout => p.layout |> string,
-      :deps => modeldeps(p.model |> Base.invokelatest)
+      :deps => modeldeps(p.model |> Base.invokelatest),
+      :assets => assets()
     ) for p in Stipple.Pages.pages()]) |> json
   end
 
   nothing
+end
+
+function assets(rootdir = Genie.config.server_document_root; extensions = ["js", "css"])
+  result = String[]
+
+  for f in rootdir
+    push!(result, Genie.Util.walk_dir(f, only_extensions = extensions)...)
+  end
+
+  result
 end
 
 function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
