@@ -54,7 +54,7 @@ end
 
 function save(defaultroute)
   route("$defaultroute/save", method=POST) do
-    isempty(params(:path, "")) || return (:error => "The `path` parameter is missing") |> json
+    isempty(params(:path, "")) && return (:error => "The `path` parameter is missing") |> json
 
     pth = params(:path)
 
