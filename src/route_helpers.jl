@@ -134,19 +134,52 @@ function down(defaultroute)
   nothing
 end
 
+const STIPPLE_REACTIVE_ACCESS_MODES = Dict(1 => "Public", 2 => "Private", 4 => "Readonly", 8 => "JSFn")
+
 function pages(defaultroute)
   route("$defaultroute/pages") do
-    (:pages => [Dict(
-      :route => Dict(:method => p.route.method, :path => p.route.path),
-      :view => p.view |> string,
-      :model => Dict(:name => p.model,
-        :fields => [fn for fn in fieldnames(p.model)],
-        :types => [ft for ft in fieldtypes(p.model)]),
-      :layout => p.layout |> string,
-      :deps => modeldeps(p.model |> Base.invokelatest),
-      :assets => assets(),
-      :config => config()
-    ) for p in Stipple.Pages.pages()]) |> json
+    result = Dict(:pages => [])
+
+    function modelfieldsinfo(model)
+      fieldsinfo = []
+      for f in fieldnames(typeof(model))
+        ff = getfield(model, f)
+        info = Dict()
+        info[:name] = f
+        info[:type] = typeof(ff)
+        if info[:type] <: Stipple.Reactive
+          info[:declaration] = ff.__source__
+          info[:access] = get(STIPPLE_REACTIVE_ACCESS_MODES, ff.r_mode, "Unknown")
+          info[:isreactive] = true
+        else
+          info[:declaration] = nothing
+          info[:access] = "Public"
+          info[:isreactive] = false
+        end
+
+        push!(fieldsinfo, info)
+      end
+
+      return fieldsinfo
+    end
+
+    for p in Stipple.Pages.pages()
+      instance = p.model |> Base.invokelatest
+      page_info = [Dict(
+        :route => Dict(:method => p.route.method, :path => p.route.path),
+        :view => p.view |> string,
+        :model => Dict( :name => Genie.Generator.validname(p.model |> string),
+                        :fields => modelfieldsinfo(instance)),
+        :layout => isfile(p.layout |> string) ? p.layout |> string : nothing,
+        :deps => modeldeps(instance),
+        :assets => assets(),
+        :config => config(),
+      )]
+
+      push!(result[:pages], page_info)
+    end
+
+    result |> json
   end
 
   nothing
@@ -161,6 +194,8 @@ end
 
 function assets(rootdir = Genie.config.server_document_root; extensions = ["js", "css"])
   result = String[]
+
+  isdir(rootdir) || return result
 
   push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions)...)
 
