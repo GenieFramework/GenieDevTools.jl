@@ -164,8 +164,14 @@ function pages(defaultroute)
     end
 
     for p in Stipple.Pages.pages()
-      instance = p.model |> Base.invokelatest
-      page_info = [Dict(
+      instance = try
+        p.model |> Base.invokelatest
+      catch ex
+        @debug ex
+        p.model
+      end
+
+      page_info = Dict(
         :route => Dict(:method => p.route.method, :path => p.route.path),
         :view => p.view |> string,
         :model => Dict( :name => Genie.Generator.validname(p.model |> string),
@@ -174,7 +180,7 @@ function pages(defaultroute)
         :deps => modeldeps(instance),
         :assets => assets(),
         :config => config(),
-      )]
+      )
 
       push!(result[:pages], page_info)
     end
