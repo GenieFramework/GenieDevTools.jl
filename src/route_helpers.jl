@@ -176,7 +176,7 @@ function pages(defaultroute)
         :view => p.view |> string,
         :model => Dict( :name => Genie.Generator.validname(p.model |> string),
                         :fields => modelfieldsinfo(instance)),
-        :layout => isfile(p.layout |> string) ? p.layout |> string : nothing,
+        :layout => length(p.layout) < Stipple.IF_ITS_THAT_LONG_IT_CANT_BE_A_FILENAME && isfile(p.layout) ? p.layout : nothing,
         :deps => modeldeps(instance),
         :assets => assets(),
         :config => config(),
