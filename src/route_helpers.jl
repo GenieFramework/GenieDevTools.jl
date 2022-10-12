@@ -203,7 +203,7 @@ function assets(rootdir = Genie.config.server_document_root; extensions = ["js",
 
   isdir(rootdir) || return result
 
-  push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions)...)
+  push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions, only_files = true, exceptions = [])...)
 
   result
 end
