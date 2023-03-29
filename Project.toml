@@ -14,7 +14,7 @@ Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 Genie = "5"
 RemoteREPL = "0.2"
 Revise = "3"
-Stipple = "0.25"
+Stipple = "0.26"
 julia = "1.6"
 
 [extras]
