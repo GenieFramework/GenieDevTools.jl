@@ -223,6 +223,8 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
     else
       "/" * ENV["BASEPATH"]
     end
+  else
+    ""
   end
 
   if ! isempty(channelname)
