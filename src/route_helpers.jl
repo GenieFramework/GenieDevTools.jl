@@ -216,8 +216,17 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
 
   channelname = params(:CHANNEL__, "")
 
+  basepath::String = if haskey(ENV, "BASEPATH")
+    # the BASEPATH is the GBJL basepath, not the app's
+    if haskey(ENV, "GBJL_PATH") && (ENV["GBJL_PATH"] == ("/" * ENV["BASEPATH"]))
+      ""
+    else
+      "/" * ENV["BASEPATH"]
+    end
+  end
+
   if ! isempty(channelname)
-    push!(scripts, "/$channelname.js")
+    push!(scripts, "$basepath/$channelname.js")
     routename = "get_$(channelname)js" |> Symbol
 
     if ! Genie.Router.isroute(routename)
@@ -231,9 +240,9 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
     ! isempty(channelname) && endswith(r.path, "$channelname.js") && continue # don't add the channel script again
 
     if endswith(r.path, ".js")
-      push!(scripts, r.path)
+      push!(scripts, basepath * r.path)
     elseif endswith(r.path, ".css")
-      push!(styles, r.path)
+      push!(styles, basepath * r.path)
     end
   end
 
