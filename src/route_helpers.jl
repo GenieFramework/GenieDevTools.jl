@@ -218,10 +218,10 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
 
   basepath::String = if haskey(ENV, "BASEPATH")
     # the BASEPATH is the GBJL basepath, not the app's
-    if haskey(ENV, "GBJL_PATH") && (ENV["GBJL_PATH"] == ("/" * ENV["BASEPATH"]))
+    if haskey(ENV, "GBJL_PATH") && (ENV["GBJL_PATH"] == ( (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"] ))
       ""
     else
-      "/" * ENV["BASEPATH"]
+      (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"]
     end
   else
     ""
