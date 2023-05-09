@@ -180,6 +180,7 @@ function pages(defaultroute)
         :deps => modeldeps(instance),
         :assets => assets(),
         :config => config(),
+        :sesstoken => Stipple.sessionid(),
       )
 
       push!(result[:pages], page_info)
