@@ -174,7 +174,7 @@ function pages(defaultroute)
       page_info = Dict(
         :route => Dict(:method => p.route.method, :path => p.route.path),
         :view => p.view |> string,
-        :model => Dict( :name => Stipple.Elements.root(p.model),
+        :model => Dict( :name => Stipple.Elements.root(instance),
                         :fields => modelfieldsinfo(instance)),
         :layout => length(p.layout) < Stipple.IF_ITS_THAT_LONG_IT_CANT_BE_A_FILENAME && isfile(p.layout) ? p.layout : nothing,
         :deps => modeldeps(instance),
