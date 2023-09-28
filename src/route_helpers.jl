@@ -8,6 +8,7 @@ using Dates
 using RemoteREPL
 
 import Stipple, Stipple.Pages
+import Tables
 
 const logfile = "log/$(Genie.config.app_env)-$(Dates.today()).log";
 
@@ -140,6 +141,13 @@ function pages(defaultroute)
   route("$defaultroute/pages") do
     result = Dict(:pages => [])
 
+    function istable_info(info, field)
+      if Tables.istable(field)
+        info[:istable] = true
+        info[:columns] = Tables.columnnames(field)
+      end
+    end
+
     function modelfieldsinfo(model)
       fieldsinfo = []
       for f in fieldnames(typeof(model))
@@ -147,14 +155,17 @@ function pages(defaultroute)
         info = Dict()
         info[:name] = f
         info[:type] = typeof(ff)
+
         if info[:type] <: Stipple.Reactive
           info[:declaration] = ff.__source__
           info[:access] = get(STIPPLE_REACTIVE_ACCESS_MODES, ff.r_mode, "Unknown")
           info[:isreactive] = true
+          istable_info(info, ff[])
         else
           info[:declaration] = nothing
           info[:access] = "Public"
           info[:isreactive] = false
+          istable_info(info, ff)
         end
 
         push!(fieldsinfo, info)
@@ -175,6 +186,7 @@ function pages(defaultroute)
         :route => Dict(:method => p.route.method, :path => p.route.path),
         :view => p.view |> string,
         :model => Dict( :name => Stipple.Elements.root(instance),
+                        :script => [r for r in routes() if endswith(lowercase(r.path), lowercase(Stipple.Elements.root(instance)) * ".js")][1].path,
                         :fields => modelfieldsinfo(instance)),
         :layout => length(p.layout) < Stipple.IF_ITS_THAT_LONG_IT_CANT_BE_A_FILENAME && isfile(p.layout) ? p.layout : nothing,
         :deps => modeldeps(instance),

@@ -1,7 +1,7 @@
 name = "GenieDevTools"
 uuid = "4e5d9629-6565-4102-a9ff-45c707eb060e"
 authors = ["essenciary <e@essenciary.com> and contributors"]
-version = "2.4.0"
+version = "2.5.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -9,6 +9,7 @@ Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 RemoteREPL = "1bd9f7bb-701c-4338-bec7-ac987af7c555"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [compat]
 Genie = "5"
