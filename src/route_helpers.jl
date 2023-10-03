@@ -182,11 +182,12 @@ function pages(defaultroute)
         p.model
       end
 
+      jsscripts = [r for r in routes() if endswith(lowercase(r.path), lowercase(Stipple.Elements.root(instance)) * ".js")]
       page_info = Dict(
         :route => Dict(:method => p.route.method, :path => p.route.path),
         :view => p.view |> string,
         :model => Dict( :name => Stipple.Elements.root(instance),
-                        :script => [r for r in routes() if endswith(lowercase(r.path), lowercase(Stipple.Elements.root(instance)) * ".js")][1].path,
+                        :script => ! isempty(jsscripts) ? jsscripts[1].path : nothing,
                         :fields => modelfieldsinfo(instance)),
         :layout => length(p.layout) < Stipple.IF_ITS_THAT_LONG_IT_CANT_BE_A_FILENAME && isfile(p.layout) ? p.layout : nothing,
         :deps => modeldeps(instance),
