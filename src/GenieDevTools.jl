@@ -69,7 +69,8 @@ end
 
 function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
   # check for missing packages
-  m = match(r"ArgumentError: Package (\w*) not found", line)
+  r = r"""ArgumentError.*Package (\w*) not found"""
+  m = match(r, line)
   if ! isnothing(m) && length(m.captures) >= 1
     return "log:critical:package_not_found $(m.captures[1])"
   end
