@@ -95,6 +95,15 @@ function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
     return "log:critical:parse_error $(m.captures[2])"
   end
 
+  # catch generic error
+  r = r"""┌ Error: (.*)
+  (.*)
+  (.*)"""
+  m = match(r, line)
+  if ! isnothing(m) && length(m.captures) >= 3
+    return "log:critical:application $(m.captures[1])"
+  end
+
   return
 end
 
