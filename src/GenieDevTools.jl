@@ -68,11 +68,13 @@ function logtype(line::String) :: Symbol
 end
 
 function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
+  prefix = "log:critical:"
+
   # check for missing packages
   r = r"""ArgumentError.*Package (\w*) not found"""
   m = match(r, line)
   if ! isnothing(m) && length(m.captures) >= 1
-    return "log:critical:package_not_found $(m.captures[1])"
+    return "$(prefix)package_not_found $(m.captures[1])"
   end
 
   # catch revise errors
@@ -81,7 +83,7 @@ function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
   (.*)"""
   m = match(r, line)
   if ! isnothing(m) && length(m.captures) >= 2
-    return "log:critical:revise_error $(m.captures[2])"
+    return "$(prefix)revise_error $(m.captures[2])"
   end
 
   # catch parse errors
@@ -92,7 +94,7 @@ function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
   (.*)"""
   m = match(r, line)
   if ! isnothing(m) && length(m.captures) >= 5
-    return "log:critical:parse_error $(m.captures[2])"
+    return "$(prefix)parse_error $(m.captures[2])"
   end
 
   # catch generic error
@@ -101,7 +103,7 @@ function parselog(line::AbstractString) :: Union{AbstractString,Nothing}
   (.*)"""
   m = match(r, line)
   if ! isnothing(m) && length(m.captures) >= 3
-    return "log:critical:application $(m.captures[1])"
+    return "$(prefix)application $(m.captures[1])"
   end
 
   return
