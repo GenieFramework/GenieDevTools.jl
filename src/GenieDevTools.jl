@@ -25,7 +25,7 @@ function runhooks()
   end
 end
 
-function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 0.5, env::AbstractString = "dev")
+function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 0.5, env::AbstractString = "dev", remove_prefixes::Bool = true)
   logpath = joinpath(logdirpath, "$env-$(Dates.today()).log")
   if ! isfile(logpath)
     @error "No log file found at $logpath"
@@ -39,13 +39,51 @@ function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 
     end
 
     seekend(io)
+    output = ""
 
     while true
       line = read(io, String)
-      if ! isempty(line)
-        handler(line)
+      if isempty(line)
+        sleep(frequency)
+        continue
       end
-      sleep(frequency)
+
+      if ! isempty(line)
+        lines = split(line, "\n")
+
+        for line in lines
+          line = strip(line)
+          if isempty(line)
+            continue
+          end
+
+          invoke = false
+
+          if startswith(line, "└") || startswith(line, "[")
+            invoke = true
+          end
+
+          if remove_prefixes
+            line = replace(line, "^└" => "")
+            line = replace(line, "^┌" => "")
+            line = replace(line, "`" => '"')
+            line = replace(line, "^\\[" => "")
+          end
+
+          output = output * line * "\n"
+          if invoke
+            # println("Invoking handler for output: $output")
+
+            try
+              handler(output)
+            catch ex
+              println("Error invoking handler: $ex")
+            end
+
+            output = ""
+          end
+        end
+      end
     end
 
     @info "Finished watching log file at $logpath"
