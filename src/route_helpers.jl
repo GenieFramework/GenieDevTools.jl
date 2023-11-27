@@ -63,7 +63,7 @@ function save(defaultroute)
 
     isfile(pth) || touch(pth)
 
-    isempty(params(:payload, "")) && return (:error => "empty payload") |> json
+    # isempty(params(:payload, "")) && return (:error => "empty payload") |> json
 
     open(pth, "w") do f
       write(f, params(:payload))
