@@ -235,7 +235,8 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
     if haskey(ENV, "GBJL_PATH") && (ENV["GBJL_PATH"] == ( (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"] ))
       ""
     else
-      (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"]
+      bp = (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"]
+      endswith(bp, "/") ? bp[1:end-1] : bp
     end
   else
     ""
