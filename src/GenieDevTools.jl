@@ -28,13 +28,13 @@ end
 function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 0.5, env::AbstractString = "dev", remove_prefixes::Bool = true)
   logpath = joinpath(logdirpath, "$env-$(Dates.today()).log")
   if ! isfile(logpath)
-    @error "No log file found at $logpath"
+    @warn "No log file found at $logpath"
     return
   end
 
   open(logpath) do io
     if ! isreadable(io)
-      @error "Log file at $logpath is not readable"
+      @warn "Log file at $logpath is not readable"
       return
     end
 
@@ -86,7 +86,7 @@ function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 
       end
     end
 
-    @info "Finished watching log file at $logpath"
+    @debug "Finished watching log file at $logpath"
     close(io)
   end
 end
