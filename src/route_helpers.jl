@@ -8,6 +8,7 @@ using Dates
 using RemoteREPL
 
 import Stipple, Stipple.Pages
+import StippleUI
 import Tables
 
 const logfile = "log/$(Genie.config.app_env)-$(Dates.today()).log";
@@ -148,6 +149,14 @@ function pages(defaultroute)
       end
     end
 
+    function isdatatable_info(info, field)
+      if isa(field, StippleUI.Tables.DataTable)
+        info[:isdatatable] = true
+        info[:columns] = StippleUI.Tables.columns(field)
+        info[:props] = [:data, :columns]
+      end
+    end
+
     function modelfieldsinfo(model)
       fieldsinfo = []
       for f in fieldnames(typeof(model))
@@ -161,11 +170,13 @@ function pages(defaultroute)
           info[:access] = get(STIPPLE_REACTIVE_ACCESS_MODES, ff.r_mode, "Unknown")
           info[:isreactive] = true
           istable_info(info, ff[])
+          isdatatable_info(info, ff[])
         else
           info[:declaration] = nothing
           info[:access] = "Public"
           info[:isreactive] = false
           istable_info(info, ff)
+          isdatatable_info(info, ff)
         end
 
         push!(fieldsinfo, info)
