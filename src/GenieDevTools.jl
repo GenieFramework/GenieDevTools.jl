@@ -25,8 +25,15 @@ function runhooks()
   end
 end
 
-function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 0.5, env::AbstractString = "dev", remove_prefixes::Bool = true)
-  logpath = joinpath(logdirpath, "$env-$(Dates.today()).log")
+function tailapplog(handler::Function,
+                    logdirpath::String;
+                    frequency::Float64 = 0.5,
+                    env::AbstractString = "dev",
+                    remove_prefixes::Bool = true,
+                    logfile::AbstractString = "$env-$(Dates.today()).log",
+                    skiptoend::Bool = true) :: Nothing
+  logpath = joinpath(logdirpath, logfile)
+
   if ! isfile(logpath)
     @warn "No log file found at $logpath"
     return
@@ -38,11 +45,12 @@ function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 
       return
     end
 
-    seekend(io)
+    skiptoend && seekend(io)
     output = ""
 
     while true
       line = read(io, String)
+
       if isempty(line)
         sleep(frequency)
         continue
@@ -64,10 +72,11 @@ function tailapplog(handler::Function, logdirpath::String; frequency::Float64 = 
           end
 
           if remove_prefixes
-            line = replace(line, "^└" => "")
-            line = replace(line, "^┌" => "")
-            line = replace(line, "`" => '"')
-            line = replace(line, "^\\[" => "")
+            line = replace(line, r"^└ " => "")
+            line = replace(line, r"^┌ " => "")
+            line = replace(line, r"`" => '"')
+            line = replace(line, r"^\[ " => "")
+            line = replace(line, r"^│ " => "")
           end
 
           output = output * line * "\n"
