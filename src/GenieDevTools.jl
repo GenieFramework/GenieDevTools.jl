@@ -101,15 +101,15 @@ function tailapplog(handler::Function,
 end
 
 function logtype(line::String) :: Symbol
-  if startswith(line, "┌ ") # start of log line
-    if startswith(line, "┌ Debug: ")
-      return :debug
-    elseif startswith(line, "┌ Warn: ")
-      return :warn
-    elseif startswith(line, "┌ Error: ")
-      return :error
-    end
+  # if startswith(line, "┌ ") # start of log line
+  if startswith(line, "Debug: ")
+    return :debug
+  elseif startswith(line, "Warn: ")
+    return :warn
+  elseif startswith(line, "Error: ")
+    return :error
   end
+  # end
 
   return :info
 end
