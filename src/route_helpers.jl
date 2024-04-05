@@ -218,7 +218,7 @@ end
 
 function config()
   Dict(
-    :app_path => abspath(normpath(pwd())),
+    :app_path => abspath(normpath(pwd())) |> realpath,
     :public_path => abspath(normpath(Genie.config.server_document_root))
   )
 end
