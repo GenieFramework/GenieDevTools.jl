@@ -62,12 +62,21 @@ function save(defaultroute)
 
     isdir(dirname(pth)) || mkpath(dirname(pth))
 
-    isfile(pth) || touch(pth)
+    new_file = false
+    if ! isfile(pth)
+      touch(pth)
+      new_file = true
+    end
 
     # isempty(params(:payload, "")) && return (:error => "empty payload") |> json
 
     open(pth, "w") do f
       write(f, params(:payload))
+    end
+
+    if new_file
+      Genie.Watch.watch([dirname(pth)])
+      Genie.Watch.watch([pth])
     end
 
     (:status => :OK) |> json
@@ -230,7 +239,8 @@ function assets(rootdir = Genie.config.server_document_root; extensions = ["js",
 
   push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions, only_files = true, exceptions = [])...)
 
-  result
+  # handle windows paths with backslashes -- replace with forward slashes
+  Sys.iswindows() ? [replace(p, "\\" => "/") for p in result] : result
 end
 
 function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
