@@ -75,8 +75,9 @@ function save(defaultroute)
     end
 
     if new_file
-      Genie.Watch.watch([dirname(pth)])
-      Genie.Watch.watch([pth])
+      Genie.Watch.watchpath(dirname(pth))
+      Genie.Watch.watchpath(pth)
+      @async Genie.Watch.watch()
     end
 
     (:status => :OK) |> json
