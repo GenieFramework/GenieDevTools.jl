@@ -215,6 +215,7 @@ function pages(defaultroute)
         :assets => assets(),
         :config => config(),
         :sesstoken => Stipple.sessionid(),
+        :gb_components => gb_components(),
       )
 
       push!(result[:pages], page_info)
@@ -244,15 +245,8 @@ function assets(rootdir = Genie.config.server_document_root; extensions = ["js",
   Sys.iswindows() ? [replace(p, "\\" => "/") for p in result] : result
 end
 
-function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
-  Stipple.deps(m)
-
-  scripts = String[]
-  styles = String[]
-
-  channelname = params(:CHANNEL__, "")
-
-  basepath::String = if haskey(ENV, "BASEPATH")
+function assets_basepath() :: String
+  if haskey(ENV, "BASEPATH")
     # the BASEPATH is the GBJL basepath, not the app's
     if haskey(ENV, "GBJL_PATH") && (ENV["GBJL_PATH"] == ( (startswith(ENV["BASEPATH"], "/") ? "" : "/") * ENV["BASEPATH"] ))
       ""
@@ -263,6 +257,16 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
   else
     ""
   end
+end
+
+function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
+  Stipple.deps(m)
+
+  scripts = String[]
+  styles = String[]
+
+  channelname = params(:CHANNEL__, "")
+  basepath = assets_basepath()
 
   if ! isempty(channelname)
     push!(scripts, "$basepath/$channelname.js")
@@ -277,6 +281,7 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
 
   for r in routes(reversed = false)
     ! isempty(channelname) && endswith(r.path, "$channelname.js") && continue # don't add the channel script again
+    occursin("gb_component", r.path) && continue # don't include gb_component assets
 
     if endswith(r.path, ".js")
       push!(scripts, basepath * r.path)
@@ -286,6 +291,27 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
   end
 
   Dict(:scripts => scripts, :styles => styles)
+end
+
+function gb_components()
+  prefix = "components"
+  suffix = "gb_component"
+  basepath = assets_basepath()
+  components = Dict{String, Vector{String}}()
+
+  for r in routes(reversed = false)
+    (occursin(prefix, r.path) && occursin(suffix, r.path)) || continue # only include gb_component assets
+    m = match(Regex("/$prefix/(.*)/$suffix/"), r.path)
+    m === nothing && continue
+    isempty(m.captures) && continue
+
+    component_name = m.captures[1]
+    haskey(components, component_name) || (components[component_name] = String[])
+
+    push!(components[component_name], basepath * r.path)
+  end
+
+  components
 end
 
 function startrepl(defaultroute)
