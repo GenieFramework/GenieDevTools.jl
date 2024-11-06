@@ -68,8 +68,6 @@ function save(defaultroute)
       new_file = true
     end
 
-    # isempty(params(:payload, "")) && return (:error => "empty payload") |> json
-
     open(pth, "w") do f
       write(f, params(:payload))
     end
@@ -216,6 +214,8 @@ function pages(defaultroute)
         :config => config(),
         :sesstoken => Stipple.sessionid(),
         :gb_components => gb_components(),
+        :themes => themes(),
+        # :theme_urls => theme_urls()
       )
 
       push!(result[:pages], page_info)
@@ -225,6 +225,25 @@ function pages(defaultroute)
   end
 
   nothing
+end
+
+function theme_urls()
+  [Stipple.Theme.to_path(t) for t in keys(Stipple.Theme.THEMES) |> collect]
+end
+
+function themes()
+  Dict(
+    :active => Dict(
+      :name => Stipple.Theme.get_theme(),
+      :asset => Stipple.Theme.to_path(Stipple.Theme.get_theme())
+    ),
+    :registered => [
+      Dict(
+          :name => t,
+          :asset => Stipple.Theme.to_path(t)
+        ) for t in keys(Stipple.Theme.THEMES) |> collect |> sort!
+    ]
+  )
 end
 
 function config()
@@ -239,7 +258,15 @@ function assets(rootdir = Genie.config.server_document_root; extensions = ["js",
 
   isdir(rootdir) || return result
 
-  push!(result, Genie.Util.walk_dir(rootdir, only_extensions = extensions, only_files = true, exceptions = [])...)
+  push!(result, Genie.Util.walk_dir(rootdir,
+                                    only_extensions = extensions,
+                                    only_files = true,
+                                    exceptions = [],
+                                    test_function = (full_path) -> begin
+                                      ! startswith(full_path, rootdir * "/css/$(Stipple.THEMES_FOLDER)")
+                                    end
+                                  )...
+      )
 
   # handle windows paths with backslashes -- replace with forward slashes
   Sys.iswindows() ? [replace(p, "\\" => "/") for p in result] : result
@@ -282,6 +309,7 @@ function modeldeps(m::M) where {M<:Stipple.ReactiveModel}
   for r in routes(reversed = false)
     ! isempty(channelname) && endswith(r.path, "$channelname.js") && continue # don't add the channel script again
     occursin("gb_component", r.path) && continue # don't include gb_component assets
+    r.path in theme_urls() && continue # don't include theme assets
 
     if endswith(r.path, ".js")
       push!(scripts, basepath * r.path)
