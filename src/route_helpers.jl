@@ -228,7 +228,7 @@ function pages(defaultroute)
 end
 
 function theme_urls()
-  [Stipple.Theme.to_path(t) for t in keys(Stipple.Theme.THEMES) |> collect]
+  [Stipple.Theme.to_path(t) for t in keys(Stipple.Theme.get_themes()) |> collect]
 end
 
 function themes()
@@ -241,7 +241,7 @@ function themes()
       Dict(
           :name => t,
           :asset => Stipple.Theme.to_path(t)
-        ) for t in keys(Stipple.Theme.THEMES) |> collect |> sort!
+        ) for t in keys(Stipple.Theme.get_themes()) |> collect |> sort!
     ]
   )
 end
