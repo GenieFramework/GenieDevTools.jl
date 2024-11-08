@@ -88,8 +88,6 @@ function delete(defaultroute)
   route("$defaultroute/delete") do
     pth = params(:path, pwd())
 
-    @show pth
-
     isfile(pth) || return (:error => "$pth is not a file") |> json
 
     try
