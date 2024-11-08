@@ -161,6 +161,7 @@ function register_routes(defaultroute = defaultroute) :: Nothing
   RH.dir(defaultroute)
   RH.edit(defaultroute)
   RH.save(defaultroute)
+  RH.delete(defaultroute)
   RH.exec(defaultroute)
   RH.id(defaultroute)
   RH.log(defaultroute)

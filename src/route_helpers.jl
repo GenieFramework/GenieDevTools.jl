@@ -84,6 +84,25 @@ function save(defaultroute)
   nothing
 end
 
+function delete(defaultroute)
+  route("$defaultroute/delete") do
+    pth = params(:path, pwd())
+
+    @show pth
+
+    isfile(pth) || return (:error => "$pth is not a file") |> json
+
+    try
+      rm(pth)
+      (:status => :OK) |> json
+    catch ex
+      (:error => ex) |> json
+    end
+  end
+
+  nothing
+end
+
 function exec(defaultroute)
   routes("$defaultroute/exec", method=[GET, POST]) do
     Core.eval(Main, Meta.parse(params(:cmd))) |> html
