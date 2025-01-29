@@ -1,7 +1,7 @@
 name = "GenieDevTools"
 uuid = "4e5d9629-6565-4102-a9ff-45c707eb060e"
 authors = ["essenciary <e@essenciary.com> and contributors"]
-version = "2.12.0"
+version = "2.12.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -17,8 +17,8 @@ Dates = "1.6"
 Genie = "5.31"
 RemoteREPL = "0.2"
 Revise = "3"
-Stipple = "0.28.17"
-StippleUI = "0.23"
+Stipple = "0.28.17, 0.31"
+StippleUI = "0.23, 0.25"
 Tables = "1.11"
 julia = "1.6"
 
