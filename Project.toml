@@ -18,7 +18,7 @@ Genie = "5.31"
 RemoteREPL = "0.2"
 Revise = "3"
 Stipple = "0.28.17, 0.31"
-StippleUI = "0.23, 0.25"
+StippleUI = "0.23, 0.24"
 Tables = "1.11"
 julia = "1.6"
 
